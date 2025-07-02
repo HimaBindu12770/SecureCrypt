@@ -46,6 +46,36 @@ def save_password():
             data.update(new_data)
     except FileNotFoundError:
         data = new_data
+        def find_password():
+    website = website_entry.get()
+    if len(website) == 0:
+        messagebox.showerror(title="Error", message="Please enter website to search!")
+        return
+
+    try:
+        with open("data.json", "r") as file:
+            data = json.load(file)
+
+        if website in data:
+            username = data[website]["username"]
+            encrypted_password = data[website]["password"]
+
+            key = load_key()
+            fernet = Fernet(key)
+            decrypted_password = fernet.decrypt(encrypted_password.encode()).decode()
+
+            messagebox.showinfo(title=website, message=f"Username: {username}\nPassword: {decrypted_password}")
+        else:
+            messagebox.showwarning(title="Not Found", message="No details for that website found.")
+
+    except FileNotFoundError:
+        messagebox.showerror(title="Error", message="Data file not found.")
+        save_button = tk.Button(text="Add Password", width=14, command=save_password)
+save_button.grid(row=3, column=1)
+search_button = tk.Button(text="Search Password", width=14, command=find_password)
+search_button.grid(row=3, column=2)
+
+
 
     with open("data.json", "w") as file:
         json.dump(data, file, indent=4)
